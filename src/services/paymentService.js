@@ -12,7 +12,8 @@ function isTradePaid(order, tradeInfo, config = ECPAY_CONFIG) {
     return false;
   }
 
-  if (tradeInfo.CheckMacValue && !verifyCheckMacValue(tradeInfo, config.hashKey, config.hashIV)) {
+  // A missing CheckMacValue counts as a mismatch; never trust an unsigned response
+  if (!verifyCheckMacValue(tradeInfo, config.hashKey, config.hashIV)) {
     throw new Error('QueryTradeInfo CheckMacValue mismatch');
   }
 

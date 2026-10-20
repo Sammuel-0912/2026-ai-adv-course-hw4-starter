@@ -1,4 +1,5 @@
 const { app, request, getAdminToken, registerUser } = require('./setup');
+const db = require('../src/database');
 
 describe('Admin Orders API', () => {
   let adminToken;
@@ -89,5 +90,24 @@ describe('Admin Orders API', () => {
     expect(res.status).toBe(403);
     expect(res.body).toHaveProperty('error');
     expect(res.body.error).not.toBeNull();
+  });
+
+  it('should deny access once an admin is demoted, even with an old token', async () => {
+    const { token, user } = await registerUser();
+    db.prepare("UPDATE users SET role = 'admin' WHERE id = ?").run(user.id);
+
+    const before = await request(app)
+      .get('/api/admin/orders')
+      .set('Authorization', `Bearer ${token}`);
+    expect(before.status).toBe(200);
+
+    db.prepare("UPDATE users SET role = 'user' WHERE id = ?").run(user.id);
+
+    const after = await request(app)
+      .get('/api/admin/orders')
+      .set('Authorization', `Bearer ${token}`);
+    expect(after.status).toBe(403);
+    expect(after.body).toHaveProperty('data', null);
+    expect(after.body).toHaveProperty('error', 'FORBIDDEN');
   });
 });

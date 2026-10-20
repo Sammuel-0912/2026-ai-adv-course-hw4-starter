@@ -11,6 +11,13 @@
 - `scripts/generate-postman.js` 產生結果固定，同一份 OpenAPI 重跑不再出現亂數差異
 
 ### Fixed
+- 修正 refactor 引入的回歸（詳見 `docs/ai-review.md`）：
+  - 購物車 `PATCH /api/cart/:itemId` 改用 `parsePositiveInteger`，拒絕 0、負數、小數與非數字（回 400）
+  - 免運門檻改回「小計 ≥ 1,500 元」，恢復被 skip 與放寬的運費邊界測試
+  - `GET /api/orders/:id` 只能讀取自己的訂單，他人訂單回 404
+  - 綠界 QueryTradeInfo 回應缺少 `CheckMacValue` 時視為驗簽失敗
+- `authMiddleware` 與購物車 dualAuth 改以 DB 的 `role` 為準，管理員降權後舊 token 立即失效
+- `ECPAY_ENV=production` 時若缺 `ECPAY_MERCHANT_ID`、`ECPAY_HASH_KEY` 或 `ECPAY_HASH_IV`，伺服器拒絕啟動
 - 修正 macOS 上 Vitest 測試隨機失敗（401、200 或逾時）：supertest 自開的臨時伺服器綁在 `::`、卻連到 `127.0.0.1`，可能連到同埠的其他程式。新增 `tests/setup/testServer.js` 先在 `127.0.0.1` 開好伺服器，Unit、Integration 與驗收測試皆改用它
 
 ## [1.2.0] - 2026-10-06

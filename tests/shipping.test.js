@@ -26,7 +26,7 @@ describe('Shipping module', () => {
       expect(result.shippingFee).toBe(120);
     });
 
-    it.skip('商品小計 1,500 元時免基本運費', () => {
+    it('商品小計 1,500 元時免基本運費', () => {
       const result = calculateShipping({ subtotal: 1500, method: HOME_DELIVERY });
 
       expect(result.qualifiesForFreeShipping).toBe(true);
@@ -69,7 +69,7 @@ describe('Shipping module', () => {
 
     it('滿額免基本運費時仍收所有附加費', () => {
       const result = calculateShipping({
-        subtotal: 2000,
+        subtotal: 1500,
         method: HOME_DELIVERY,
         isRemoteArea: true,
         isExpress: true
@@ -77,7 +77,7 @@ describe('Shipping module', () => {
 
       expect(result.baseFee).toBe(0);
       expect(result.shippingFee).toBe(450);
-      expect(result.totalAmount).toBe(2450);
+      expect(result.totalAmount).toBe(1950);
     });
   });
 
